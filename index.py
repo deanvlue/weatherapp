@@ -1,28 +1,17 @@
 from flask import Flask
-
-import os
+from flask import render_template
+import os, json, time, urllib2
 
 app = Flask(__name__)
 
+def get_weather():
+  url = 'http://api.openweathermap.org/data/2.5/forecast/daily?q=Mexico&cnt=10&mode=json&units=metric'
+  response =  urllib2.urlopen(url).read()
+  return response
+
 @app.route("/")
 def index():
-  return "Hola mundo!"
-
-@app.route("/goodbye/")
-def goodbye():
-  return "Goodbye!"
-
-@app.route("/hello/<name>/<int:age>")
-def hello(name,age):
-  
-  respuesta = ""
-
-  if age == 42:
-    respuesta="Ah parece que tienes la respuesta del universo y todo el pedo"  
-  else:  
-    respuesta= "Hello {} you little fucker you are {} years old".format(name, age)
-
-  return respuesta
+  return get_weather() 
 
 
 if __name__ == '__main__':
