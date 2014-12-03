@@ -4,7 +4,22 @@
     <title>My weather app</title>
   </head>
   <body>
-    <h1>Weather forecast for London</h1>
-    <p>{{day}} &dash; {{mini}} &dash; {{maxi}} &dash; {{description}} </p>
+    <h1>Weather forecast for {{ city }}, {{country}}</h1>
+    <table border="1">
+      <tr>
+        <th>Day</th>
+        <th>Min</th>
+        <th>Max</th>
+        <th>Weather</th>
+      </tr>
+      {% for forecast in forecast_list%}
+      <tr>
+        {% for f in forecast %}
+          <td>{{f}} </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+
   </body>
 </html>
