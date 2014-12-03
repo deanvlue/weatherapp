@@ -2,24 +2,39 @@
 <html>
   <head>
     <title>My weather app</title>
+     <!-- Latest compiled and minified CSS -->
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+     <link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='style.css') }} ">
+     <link rel="shortcut icon" href=" {{ url_for('static', filename='favicon.ico') }} ">
   </head>
   <body>
-    <h1>Weather forecast for {{ city }}, {{country}}</h1>
-    <table border="1">
-      <tr>
-        <th>Day</th>
-        <th>Min</th>
-        <th>Max</th>
-        <th>Weather</th>
-      </tr>
-      {% for forecast in forecast_list%}
-      <tr>
-        {% for f in forecast %}
-          <td>{{f}} </td>
-        {% endfor %}
-      </tr>
-      {% endfor %}
-    </table>
+    <div class="container">
+      <form role="form">
+        <div class="form-group">
+          <label for="searchcity">Forecast para la ciudad:</label>
+          <input type="text" class="form-control" placeholder="Ciudad" name="searchcity"><input type="submit" value="Enviar">
+        </div>
 
+
+      </form>
+      <h1>Weather forecast for {{ city }}, {{country}}</h1>
+      <div class="table-responsive">
+        <table border="1"i class="table">
+          <tr>
+            <th>Day</th>
+            <th>Min</th>
+            <th>Max</th>
+            <th>Weather</th>
+          </tr>
+          {% for forecast in forecast_list%}
+          <tr>
+            {% for f in forecast %}
+              <td>{{f}} </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
   </body>
 </html>
