@@ -5,14 +5,18 @@ import os, json, time, urllib2
 app = Flask(__name__)
 
 def get_weather():
-  url = 'http://api.openweathermap.org/data/2.5/forecast/daily?q=Mexico&cnt=10&mode=json&units=metric'
+  url = 'http://api.openweathermap.org/data/2.5/forecast/daily?q=London&cnt=10&mode=json&units=metric'
   response =  urllib2.urlopen(url).read()
   return response
 
 @app.route("/")
 def index():
-  return get_weather() 
-
+  data = json.loads(get_weather())
+  day = time.strftime('%d %B', time.localtime(data.get('list')[0].get('dt')))
+  mini = data.get('list')[0].get('temp').get('min')
+  maxi = data.get('list')[0].get('temp').get('max')
+  description = data.get('list')[0].get('weather')[0].get('description')
+  return render_template("index.html",day=day, mini=mini, maxi=maxi, description=description)
 
 if __name__ == '__main__':
   port = int(os.environ.get('PORT', 5000))
