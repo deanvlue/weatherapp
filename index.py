@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import render_template
+from flask import request
 import os, json, time, urllib2
 
 app = Flask(__name__)
@@ -10,8 +11,12 @@ def get_weather(city):
   return response
 
 @app.route("/")
-@app.route("/<search_city>")
-def index(search_city="London"):
+def index():
+  search_city = request.args.get("searchcity")
+
+  if not search_city:
+    search_city="London"
+
   data = json.loads(get_weather(search_city))
   city = data['city']['name']
   country = data['city']['country']
