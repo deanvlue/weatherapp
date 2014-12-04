@@ -1,7 +1,11 @@
 from flask import Flask
 from flask import render_template
 from flask import request
-import os, json, time, urllib2
+from flask import make_response
+from flask import send_file
+import os, json, time, urllib2, io
+import datetime
+import qrcode
 
 app = Flask(__name__)
 
@@ -15,7 +19,9 @@ def index():
   search_city = request.args.get("searchcity")
 
   if not search_city:
-    search_city="London"
+    search_city = request.cookies.get("last_city")
+  if not search_city:
+    search_city="Mexico City"
 
   data = json.loads(get_weather(search_city))
   
@@ -23,8 +29,8 @@ def index():
     city = data['city']['name']
   except KeyError:
     return render_template("invalid_city.html", user_input=search_city)
-  country = data['city']['country']
 
+  country = data['city']['country']
   forecast_list = []
 
   for d in data.get("list"):
@@ -33,7 +39,19 @@ def index():
     maxi = d.get('temp').get('max')
     description = d.get('weather')[0].get('description')
     forecast_list.append((day,mini,maxi,description))
-  return render_template("index.html", forecast_list=forecast_list, city=city, country=country)
+  
+  response = make_response(render_template("index.html", forecast_list=forecast_list, city=city, country=country))
+
+  if request.args.get("remember"):
+    response.set_cookie("last_city","{},{}".format(city,country), expires=datetime.datetime.today()+ datetime.timedelta(365))
+
+  return response
+
+@app.route("/qr")
+def gen_qr():
+  to_display = time.strftime('%Y%m%d%H%M%S%Z',time.localtime())
+  img = qrcode.make('Some data here')
+  return send_file(io.BytesIO(img), mimetype='image/png')
 
 if __name__ == '__main__':
   port = int(os.environ.get('PORT', 5000))
