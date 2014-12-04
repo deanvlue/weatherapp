@@ -6,6 +6,7 @@ from flask import send_file
 import os, json, time, urllib2, io
 import datetime
 import qrcode
+import cStringIO
 
 app = Flask(__name__)
 
@@ -13,6 +14,17 @@ def get_weather(city):
   url = 'http://api.openweathermap.org/data/2.5/forecast/daily?q={}&cnt=10&mode=json&units=metric'.format(city)
   response =  urllib2.urlopen(url).read()
   return response
+
+def genQR(data="test"):
+  qr=qrcode.QRCode(
+        version=4,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size = 15,
+        border = 3)
+  qr.add_data(data)
+  qr.make(fit=True)
+  img = qr.make_image()
+  return img
 
 @app.route("/")
 def index():
@@ -47,11 +59,30 @@ def index():
 
   return response
 
-@app.route("/qr")
-def gen_qr():
+@app.route("/qr_img/")
+def gen_qr_image():
   to_display = time.strftime('%Y%m%d%H%M%S%Z',time.localtime())
-  img = qrcode.make('Some data here')
-  return send_file(io.BytesIO(img), mimetype='image/png')
+  img_buf=cStringIO.StringIO()
+  img = genQR(data=to_display)
+  img.save(img_buf,'PNG')
+  img_buf.seek(0)
+  #resp = make_response(image, 304)
+  #resp.content_type="image/png"
+  #resp.headers['Accept-Ranges']="bytes"
+  #resp.headers['Access-Control-Allow-Origin']="*"
+  #resp.headers['Content-Disposition']="inline; filename=\"none.png\""
+  #resp.headers['Connection']="Keep-Alive"
+  #resp.headers['Age']=0
+  #resp.headers['Cache-Control']="max-age=300"
+  #resp.headers['X-Cache']="HIT"
+  #resp.headers['Content-Type']="image/png"
+  return send_file(img_buf, mimetype='image/png')
+  #return image 
+  
+@app.route("/qr/")
+def gen_qr():
+  qr_code=gen_qr_image()
+  return render_template("qr.html", qr_code=qr_code)
 
 if __name__ == '__main__':
   port = int(os.environ.get('PORT', 5000))
